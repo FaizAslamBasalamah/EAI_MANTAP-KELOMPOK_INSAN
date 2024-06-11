@@ -12,11 +12,18 @@ def konsultasi():
     if request.method == 'GET':
         cursor = mysql.connection.cursor()
         query = """
-        SELECT konsultasi.id, konsultasi.patient_name, konsultasi.patient_age, diseases.name AS disease, nurses.name AS nurse, patients.name AS patient
+        SELECT 
+            konsultasi.id, 
+            konsultasi.patient_name, 
+            konsultasi.patient_age, 
+            diseases.name AS disease, 
+            nurses.name AS nurse,  
+            konsultasi.management_janji_id, 
+            konsultasi.resep_hasil_konsultasi
         FROM konsultasi
-        JOIN diseases ON konsultasi.disease_id = diseases.id
-        JOIN users AS nurses ON konsultasi.nurse_id = nurses.id
-        JOIN users AS patients ON konsultasi.patient_id = patients.id
+        LEFT JOIN diseases ON konsultasi.disease_id = diseases.id
+        LEFT JOIN users AS nurses ON konsultasi.nurse_id = nurses.id
+        LEFT JOIN users AS patients ON konsultasi.patient_id = patients.id
         """
         cursor.execute(query)
         column_names = [i[0] for i in cursor.description]
@@ -25,48 +32,40 @@ def konsultasi():
         return jsonify(data)
     
     elif request.method == 'POST':
-        patient_id = request.json.get('patient_id')
-        cursor = mysql.connection.cursor()
-        
-        # Fetch the patient name from the users table
-        cursor.execute("SELECT name FROM users WHERE id = %s", (patient_id,))
-        patient_name = cursor.fetchone()[0]
-        
-        patient_age = request.json.get('patient_age')
-        disease_id = request.json.get('disease_id')
-        nurse_id = request.json.get('nurse_id')
+        data = request.json
+        nurse_id = data.get('nurse_id')
+        patient_id = data.get('patient_id')
+        patient_age = data.get('patient_age')
+        disease_id = data.get('disease_id')
+        management_janji_id = data.get('management_janji_id')
+        resep_hasil_konsultasi = data.get('resep_hasil_konsultasi')
 
+        cursor = mysql.connection.cursor()
+        # Insert new consultation
         sql = """
-        INSERT INTO konsultasi (patient_name, patient_age, disease_id, nurse_id, patient_id) 
-        VALUES (%s, %s, %s, %s, %s)
+        INSERT INTO konsultasi (patient_name, patient_age, disease_id, nurse_id, patient_id, management_janji_id, resep_hasil_konsultasi)
+        VALUES (%s, %s, %s, %s, %s, %s, %s)
         """
-        val = (patient_name, patient_age, disease_id, nurse_id, patient_id)
+        val = (data.get('patient_name'), patient_age, disease_id, nurse_id, patient_id, management_janji_id, resep_hasil_konsultasi)
         cursor.execute(sql, val)
-        new_id = cursor.lastrowid
         mysql.connection.commit()
         cursor.close()
-        return jsonify({'message': 'Consultation added successfully', 'id': new_id})
 
+        return jsonify({'message': 'Consultation added successfully'})
+    
 @app.route('/detail_konsultasi/<int:id>', methods=['GET'])
-def detail_konsultasi(id):
+def detail_user(id):
     try:
         cursor = mysql.connection.cursor()
-        sql = """
-        SELECT konsultasi.id, konsultasi.patient_name, konsultasi.patient_age, 
-               diseases.name AS disease, diseases.description AS disease_description, 
-               nurses.name AS nurse, patients.name AS patient
-        FROM konsultasi
-        JOIN diseases ON konsultasi.disease_id = diseases.id
-        JOIN users AS nurses ON konsultasi.nurse_id = nurses.id
-        JOIN users AS patients ON konsultasi.patient_id = patients.id
-        WHERE konsultasi.id = %s
-        """
-        val = (id,)
-        cursor.execute(sql, val)
+        query = "SELECT * FROM konsultasi WHERE id = %s"
+        cursor.execute(query, (id,))
         column_names = [i[0] for i in cursor.description]
-        data = [dict(zip(column_names, row)) for row in cursor.fetchall()]
+        data = cursor.fetchone()
         cursor.close()
-        return jsonify(data)
+        if data:
+            return jsonify(dict(zip(column_names, data)))
+        else:
+            return jsonify({'message': ' not found'}), 404
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
@@ -96,7 +95,9 @@ def update_konsultasi(id):
     patient_age = %s, 
     disease_id = %s, 
     nurse_id = %s, 
-    patient_id = %s
+    patient_id = %s,
+    management_janji_id = %s,  # New column
+    resep_hasil_konsultasi = %s  # New column
     WHERE id = %s
     """
     val = (
@@ -105,6 +106,8 @@ def update_konsultasi(id):
         data.get('disease_id'),
         data.get('nurse_id'),
         data.get('patient_id'),
+        data.get('management_janji_id'),  # New column
+        data.get('resep_hasil_konsultasi'),  # New column
         id
     )
     cursor.execute(sql, val)

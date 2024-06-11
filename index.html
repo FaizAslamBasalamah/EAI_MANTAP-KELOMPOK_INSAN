@@ -29,6 +29,7 @@
                 <div class="collapse navbar-collapse" id="navbarResponsive">
                     <ul class="navbar-nav text-uppercase ms-auto py-4 py-lg-0">
                         <li class="nav-item"><a class="nav-link" href="#team">Team</a></li>
+                        <li class="nav-item"><a class="nav-link" href="/logout">Logout</a></li>
                     </ul>
                 </div>
             </div>
@@ -40,7 +41,7 @@
                 <div class="masthead-subheading text-uppercase">Konsultasi & Medis</div>
                 <a class="btn btn-primary btn-xl text-uppercase" href="#services">Penyakit</a>
                 <a class="btn btn-primary btn-xl text-uppercase" href="#portfolio">Pasien</a>
-                <a class="btn btn-primary btn-xl text-uppercase" href="#resepobat">User</a>
+                <a class="btn btn-primary btn-xl text-uppercase" href="#resepobat">Janji</a>
             </div>
         </header>
         <!--Disease-->
@@ -117,8 +118,63 @@
             </div>
             <!-- Modal -->
         </section>
+        <!--Janji-->
+        <section class="page-section" id="resepobat">
+            <div class="container">
+                <div class="text-center">
+                    <h2 class="section-heading text-uppercase">Manajemen Janji</h2>
+                    <h3 class="section-subheading text-muted">Berikut adalah table untuk data-data manajemen janji</h3>
+                </div>
+                <div class="row text-center justify-content-center">
+                    <div class="col-md-4">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th scope="col">#</th>
+                                    <th scope="col">Nama Pasien</th>
+                                    <th scope="col">Nama Nurse</th>
+                                    <th scope="col">Jadwal Janji</th>
+                                    <th scope="col">Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody id="janji-table-body">
+                                
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <br>
+                <br>
+                <div class="row text-center justify-content-center grid">
+                    <!-- form submit ke API -->
+                    <div class="row text-center justify-content-center">
+                        <div class="col-md-4">
+                            <form id="janji-form" onsubmit="createJanji(event)">
+                                <div class="mb-3">
+                                    <label for="patientName" class="form-label">Nama Pasien</label>
+                                    <input type="text" class="form-control" id="patientName" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="idName" class="form-label">Id Nurse</label>
+                                    <input type="number" class="form-control" id="idNurse" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="nurseName" class="form-label">Nama Nurse</label>
+                                    <input type="text" class="form-control" id="nurseName" readonly>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="appointmentDate" class="form-label">Jadwal Janji</label>
+                                    <input type="datetime-local" class="form-control" id="appointmentDate" required>
+                                </div>
+                                <button type="submit" class="btn btn-primary">Submit</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
         <!--Konsultasi-->
-        <section class="page-section" id="portfolio">
+        <section class="page-section bg-light" id="portfolio">
             <div class="container">
                 <div class="text-center">
                     <h2 class="section-heading text-uppercase">Pasien dan Umur</h2>
@@ -132,52 +188,32 @@
                                     <th scope="col">#</th>
                                     <th scope="col">Nama Pasien</th>
                                     <th scope="col">Umur Pasien</th>
+                                    <th scope="col">Resep Hasil Konsultasi</th>
+                                    <th scope="col">Aksi</th>
                                 </tr>
                             </thead>
                             <tbody id="konsultasi-table-body">
-
+                                
                             </tbody>
                         </table>
                     </div>
                 </div>
                 <br>
-                <br>
                 <div class="row text-center justify-content-center grid">
                     <!-- form submit ke API -->
                     <div class="row text-center justify-content-center">
                         <div class="col-md-4">
-                            <form id="add-consultation-form" onsubmit="addConsultation(event)">
-                                <!-- <div class="mb-3">
-                                    <label for="patientName" class="form-label">Patient Name</label>
-                                    <input type="text" class="form-control" id="patientName" required>
-                                </div> -->
-                                <div class="mb-3">
-                                    <label for="patientAge" class="form-label">Patient Age</label>
-                                    <input type="number" class="form-control" id="patientAge" required>
-                                </div>
-                                <div class="mb-3">
-                                    <label for="diseaseId" class="form-label">Disease ID</label>
-                                    <input type="number" class="form-control" id="diseaseId" required>
-                                </div>
-                                <div class="mb-3">
-                                    <label for="nurseId" class="form-label">Nurse ID</label>
-                                    <input type="number" class="form-control" id="nurseId" required>
-                                </div>
-                                <div class="mb-3">
-                                    <label for="patientId" class="form-label">Patient ID</label>
-                                    <input type="number" class="form-control" id="patientId" required>
-                                </div>
-                                <button type="submit" class="btn btn-primary">Add Consultation</button>
-                            </form>
+                            <h3 class="section-subheading text-muted">Tambah informasi resep hasil konsultasi serta umur dari pasiennya</h3>
                         </div>
                     </div>
                 </div>
+            </div>
             </div>
             <div class="modal fade" id="editConsultationModal" tabindex="-1" aria-labelledby="editConsultationModalLabel" aria-hidden="true">
                 <div class="modal-dialog">
                     <div class="modal-content">
                         <div class="modal-header">
-                            <h5 class="modal-title" id="editDiseaseModalLabel">Edit Disease</h5>
+                            <h5 class="modal-title" id="editConsultationModalLabel">Edit Consultation</h5>
                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
                         <div class="modal-body">
@@ -203,100 +239,58 @@
                                     <label for="editConsultationNurseId" class="form-label">Nurse ID</label>
                                     <input type="number" class="form-control" id="editConsultationNurseId" placeholder="Edit Nurse ID" required>
                                 </div>
+                                <div class="mb-3">
+                                    <label for="editConsultationResep" class="form-label">Resep Hasil Konsultasi</label>
+                                    <input type="textarea" class="form-control" id="editConsultationResep" placeholder="Isi Resep Hasil Konsultasi" required>
+                                </div>
                                 <button type="submit" class="btn btn-primary">Save Changes</button>
                             </form>
                         </div>
                     </div>
                 </div>
-            </div>
-        </section>
-        <!-- resepobat -->
-        <section class="page-section bg-light" id="resepobat">
-            <div class="container">
-                <div class="text-center">
-                    <h2 class="section-heading text-uppercase">User</h2>
-                    <h3 class="section-subheading text-muted">Berikut adalah table untuk data-data waktu pasien</h3>
-                </div>
-                <div class="row text-center justify-content-center">
-                    <div class="col-md-4">
-                        <table class="table">
-                            <thead>
-                                <tr>
-                                    <th scope="col">#</th>
-                                    <th scope="col">Nama Pasien</th>
-                                    <th scope="col">Waktu Konsultasi</th>
-                                    <th scope="col">Dokter Bertugas</th>
-                                    <th scope="col">Aksi</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-                <br>
-                <br>
-                <div class="row text-center justify-content-center grid">
-                    <!-- form submit ke API -->
-                    <div class="row text-center justify-content-center">
-                        <div class="col-md-4">
-                            <form>
-                                <div class="mb-3">
-                                    <label for="exampleFormControlInput1" class="form-label">Penyakit</label>
-                                    <input type="text" class="form-control" id="exampleFormControlInput1" placeholder="name@example.com">
-                                  </div>
-                                  <div class="mb-3">
-                                    <label for="exampleFormControlTextarea1" class="form-label">Deskripsi Penyakit</label>
-                                    <textarea class="form-control" id="exampleFormControlTextarea1" rows="3"></textarea>
-                                  </div>
-                                  <button type="button" class="btn btn-primary">Submit</button>
-                            </form>
-                        </div>
-                    </div>
-                </div>
-            </div>
+            </div>            
         </section>
         <!--Team-->
-        <section c1ass="page-section" id="team">
+        <section c1ass="page-section bg-light" id="team">
             <div class="container">
                 <div class="text-center">
                     <h2 class="section-heading text-uppercase">Our Amazing Team</h2>
-                    <h3 class="section-subheading text-muted">Lorem ipsum dolor sit amet consectetur.</h3>
+                    <h3 class="section-subheading text-muted">Team works make the dream works.</h3>
                 </div>
-                <div class="row">
+                <br>
+                <br>
+                <div class="row justify-content-center">
                     <div class="col-lg-4">
                         <div class="team-member">
                             <img class="mx-auto rounded-circle" src="static/assets/img/team/1.jpg" alt="..." />
-                            <h4>Parveen Anand</h4>
-                            <p class="text-muted">Lead Designer</p>
-                            <a class="btn btn-dark btn-social mx-2" href="#!" aria-label="Parveen Anand Twitter Profile"><i class="fab fa-twitter"></i></a>
-                            <a class="btn btn-dark btn-social mx-2" href="#!" aria-label="Parveen Anand Facebook Profile"><i class="fab fa-facebook-f"></i></a>
-                            <a class="btn btn-dark btn-social mx-2" href="#!" aria-label="Parveen Anand LinkedIn Profile"><i class="fab fa-linkedin-in"></i></a>
+                            <h4>Opang</h4>
+                            <p class="text-muted">Gpt Enggineer</p>
                         </div>
                     </div>
                     <div class="col-lg-4">
                         <div class="team-member">
                             <img class="mx-auto rounded-circle" src="static/assets/img/team/2.jpg" alt="..." />
-                            <h4>Diana Petersen</h4>
-                            <p class="text-muted">Lead Marketer</p>
-                            <a class="btn btn-dark btn-social mx-2" href="#!" aria-label="Diana Petersen Twitter Profile"><i class="fab fa-twitter"></i></a>
-                            <a class="btn btn-dark btn-social mx-2" href="#!" aria-label="Diana Petersen Facebook Profile"><i class="fab fa-facebook-f"></i></a>
-                            <a class="btn btn-dark btn-social mx-2" href="#!" aria-label="Diana Petersen LinkedIn Profile"><i class="fab fa-linkedin-in"></i></a>
+                            <h4>Insan</h4>
+                            <p class="text-muted">Full stuck dikit Developer</p>
                         </div>
                     </div>
                     <div class="col-lg-4">
                         <div class="team-member">
                             <img class="mx-auto rounded-circle" src="static/assets/img/team/3.jpg" alt="..." />
-                            <h4>Larry Parker</h4>
-                            <p class="text-muted">Lead Developer</p>
-                            <a class="btn btn-dark btn-social mx-2" href="#!" aria-label="Larry Parker Twitter Profile"><i class="fab fa-twitter"></i></a>
-                            <a class="btn btn-dark btn-social mx-2" href="#!" aria-label="Larry Parker Facebook Profile"><i class="fab fa-facebook-f"></i></a>
-                            <a class="btn btn-dark btn-social mx-2" href="#!" aria-label="Larry Parker LinkedIn Profile"><i class="fab fa-linkedin-in"></i></a>
+                            <h4>Faiz</h4>
+                            <p class="text-muted">Power nap</p>
+                        </div>
+                    </div>
+                    <div class="col-lg-4">
+                        <div class="team-member">
+                            <img class="mx-auto rounded-circle" src="static/assets/img/team/3.jpg" alt="..." />
+                            <h4>Tantri</h4>
+                            <p class="text-muted">Kagak kerja</p>
                         </div>
                     </div>
                 </div>
                 <div class="row">
-                    <div class="col-lg-8 mx-auto text-center"><p class="large text-muted">Lorem ipsum dolor sit amet, consectetur adipisicing elit. Aut eaque, laboriosam veritatis, quos non quis ad perspiciatis, totam corporis ea, alias ut unde.</p></div>
+                    <div class="col-lg-8 mx-auto text-center"><p class="large text-muted">Semoga Dapet Nilai A 🙏</p></div>
                 </div>
             </div>
         </section>

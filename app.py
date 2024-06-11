@@ -6,7 +6,6 @@ import jwt
 from flask_cors import CORS
 from flask_mysqldb import MySQL
 import bcrypt
-import subprocess
 
 app = Flask(__name__, template_folder='C:\\xampp\\htdocs\\FeNurse')
 CORS(app)
@@ -101,32 +100,40 @@ def login():
         try:
             cursor.execute("SELECT * FROM users WHERE username = %s", [username])
             user = cursor.fetchone()
-            if user and bcrypt.checkpw(password.encode('utf-8'), user[3].encode('utf-8')):
-                session['user_id'] = user[0]  # Set user_id in session
-                role = user[4]  # Assuming the role is stored at index 4
-                name = user[1]  # Assuming the name is stored at index 2
-                access_token = generate_access_token(user[0], role, name)
-                refresh_token = generate_refresh_token(user[0], role, name)
-                tokens[user[0]] = {
-                    'access_token': access_token,
-                    'refresh_token': refresh_token,
-                    'role': role,
-                    'name': name,
-                    'expires_at': time.time() + ACCESS_TOKEN_EXPIRES_IN
-                }
-                print(tokens[user[0]])
+            if user:
+                stored_password = user[3].encode('utf-8')
+                print(f"Stored password (hashed): {stored_password}")  # Log the stored hashed password
+                print(f"Entered password: {password}")  # Log the entered password
+                
+                if bcrypt.checkpw(password.encode('utf-8'), stored_password):
+                    session['user_id'] = user[0]  # Set user_id in session
+                    role = user[4]  # Assuming the role is stored at index 4
+                    name = user[1]  # Assuming the name is stored at index 1
+                    access_token = generate_access_token(user[0], role, name)
+                    refresh_token = generate_refresh_token(user[0], role, name)
+                    # Store the refresh token in the database
+                    cursor.execute("UPDATE users SET refresh_token = %s WHERE id = %s", (refresh_token, user[0]))
+                    mysql.connection.commit()
+                    tokens[user[0]] = {
+                        'access_token': access_token,
+                        'refresh_token': refresh_token,
+                        'role': role,
+                        'name': name,
+                        'expires_at': time.time() + ACCESS_TOKEN_EXPIRES_IN
+                    }
+                    print(tokens[user[0]])
 
-                exp_timestamp = 1718104776.7317204
-
-                # Get the current time
-                current_timestamp = time.time()
-
-                # Calculate the remaining time until expiration in seconds
-                remaining_time_seconds = exp_timestamp - current_timestamp
-
-                print("Remaining time until token expiration:", remaining_time_seconds, "seconds")
-                return redirect(url_for('nurse_home'))
+                    if 'patient' in role:
+                        return redirect(url_for('patient_home', access_token=access_token))
+                    elif 'nurse' in role:
+                        return redirect(url_for('nurse_home', access_token=access_token))
+                    else:
+                        return 'Invalid role', 403
+                else:
+                    print("Password verification failed")  # Log when password verification fails
+                    return "Invalid username or password", 401
             else:
+                print("User not found")  # Log when user is not found
                 return "Invalid username or password", 401
         except Exception as e:
             return str(e), 400
@@ -141,7 +148,7 @@ def logout():
     if user_id in tokens:
         tokens.pop(user_id)
     session.pop('user_id', None)
-    return redirect(url_for('landing_page'))
+    return redirect(url_for('login'))
 
 def get_username(user_id):
     try:
@@ -157,7 +164,7 @@ def get_username(user_id):
         return None
 
 
-@app.route('/nursehome')
+@app.route('/medis')
 def nurse_home():
     user_id = session.get('user_id')
     print("User ID from session:", user_id)  # Add this line to check the user_id
@@ -174,6 +181,19 @@ def nurse_home():
     role = tokens[user_id]['role']
 
     return render_template('index.html', access_token=access_token, role=role, username=username)
+
+@app.route('/patient')
+def patient_home():
+    user_id = session.get('user_id')
+    if not user_id:
+        return redirect(url_for('login'))
+
+    access_token = get_valid_access_token(user_id)
+    role = tokens[user_id]['role']
+    username = get_username(user_id)
+
+    return render_template('patient.html', access_token=access_token, role=role, username=username)
+
 
 @app.route('/')
 def landing_page():

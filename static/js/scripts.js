@@ -127,6 +127,8 @@ function editDisease(id) {
         .then(response => response.json())
         .then(data => {
             if (data.length > 0) {
+                console.log('Data:', data);
+                console.log('Data length:', data.length);
                 const disease = data[0];
                 document.getElementById('editDiseaseName').value = disease.name;
                 document.getElementById('editDiseaseDescription').value = disease.description;
@@ -169,6 +171,10 @@ document.addEventListener('DOMContentLoaded', function() {
     loadConsultations(); // Load consultations when the page is loaded
 });
 
+document.addEventListener('DOMContentLoaded', function() {
+    loadConsultations(); // Load consultations when the page is loaded
+});
+
 function loadConsultations() {
     fetch('http://localhost:55/konsultasi')
         .then(response => response.json())
@@ -181,9 +187,9 @@ function loadConsultations() {
                     <th scope="row">${index + 1}</th>
                     <td>${konsultasi.patient_name}</td>
                     <td>${konsultasi.patient_age}</td>
+                    <td>${konsultasi.resep_hasil_konsultasi}</td>
                     <td>
-                        <button onclick="deleteConsultation(${konsultasi.id})" class="btn btn-danger">Delete</button>
-                        <button onclick="editConsultation(${konsultasi.id})" class="btn btn-warning">Edit</button>
+                        <button onclick="editConsultation(${konsultasi.id})" class="btn btn-primary">Tambah</button>
                     </td>
                 `;
                 konsultasiTableBody.appendChild(row);
@@ -196,19 +202,14 @@ function loadConsultations() {
 function addConsultation(event) {
     event.preventDefault();
 
+    const nurseId = document.getElementById('nurseId').value;
     const patientId = document.getElementById('patientId').value;
     const patientAge = document.getElementById('patientAge').value;
     const diseaseId = document.getElementById('diseaseId').value;
-    const nurseId = document.getElementById('nurseId').value;
+    const resepKonsultasi = document.getElementById('resepKonsultasi').value;
 
     // Fetch patient details using patientId
-    fetch(`http://localhost:50/detail_user/${patientId}`)
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('Network response was not ok');
-            }
-            return response.json();
-        })
+    fetchPatientDetails(patientId)
         .then(data => {
             if (data && data.name) { // Check if data exists and has name property
                 const patientName = data.name; // Get the patient name
@@ -217,7 +218,8 @@ function addConsultation(event) {
                     patient_age: patientAge,
                     disease_id: diseaseId,
                     nurse_id: nurseId,
-                    patient_id: patientId
+                    patient_id: patientId,
+                    resep_hasil_konsultasi: resepKonsultasi // Include resep_konsultasi in consultation data
                 };
                 console.log('Consultation Data:', consultationData)
                 // Call the function to submit the consultation data
@@ -229,6 +231,141 @@ function addConsultation(event) {
         })
         .catch(error => console.error('Error fetching patient details:', error));
 }
+
+function editConsultation(id) {
+    fetch(`http://localhost:55/detail_konsultasi/${id}`)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        })
+        .then(data => {
+            // Check if data is an array or a single object
+            if (Array.isArray(data) && data.length > 0) {
+                const consultation = data[0];
+                document.getElementById('editConsultationPatientName').value = consultation.patient_name;
+                document.getElementById('editConsultationResep').value = consultation.resep_hasil_konsultasi;
+                document.getElementById('editConsultationPatientAge').value = consultation.patient_age;
+                document.getElementById('editConsultationDiseaseId').value = consultation.disease_id;
+                document.getElementById('editConsultationNurseId').value = consultation.nurse_id;
+                document.getElementById('editConsultationPatientId').value = consultation.patient_id;
+                document.getElementById('editConsultationId').value = consultation.id; // Hidden field to store ID
+
+                // Trigger Bootstrap modal manually
+                const modal = new bootstrap.Modal(document.getElementById('editConsultationModal'));
+                modal.show();
+            } else if (!Array.isArray(data) && data !== null) {
+                // Handle single object response
+                const consultation = data;
+                document.getElementById('editConsultationPatientName').value = consultation.patient_name;
+                document.getElementById('editConsultationResep').value = consultation.resep_hasil_konsultasi;
+                document.getElementById('editConsultationPatientAge').value = consultation.patient_age;
+                document.getElementById('editConsultationDiseaseId').value = consultation.disease_id;
+                document.getElementById('editConsultationNurseId').value = consultation.nurse_id;
+                document.getElementById('editConsultationPatientId').value = consultation.patient_id;
+                document.getElementById('editConsultationId').value = consultation.id; // Hidden field to store ID
+
+                // Trigger Bootstrap modal manually
+                const modal = new bootstrap.Modal(document.getElementById('editConsultationModal'));
+                modal.show();
+            } else {
+                console.error('No consultation data found');
+            }
+        })
+        .catch(error => console.error('Error fetching consultation details:', error));
+}
+
+
+document.getElementById('editConsultationPatientId').addEventListener('change', function() {
+    const patientId = this.value;
+    if (patientId) {
+        fetch(`http://localhost:50/detail_user/${patientId}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data && data.name) {
+                    document.getElementById('editConsultationPatientName').value = data.name;
+                } else {
+                    document.getElementById('editConsultationPatientName').value = '';
+                    alert('Patient details not found');
+                }
+            })
+            .catch(error => console.error('Error fetching patient details:', error));
+    } else {
+        document.getElementById('editConsultationPatientName').value = '';
+    }
+});
+
+document.getElementById('editConsultationPatientId').addEventListener('change', function() {
+    const patientId = this.value;
+    if (patientId) {
+        fetch(`http://localhost:50/detail_user/${patientId}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data && data.name) {
+                    document.getElementById('editConsultationPatientName').value = data.name;
+                } else {
+                    document.getElementById('editConsultationPatientName').value = '';
+                    alert('Patient details not found');
+                }
+            })
+            .catch(error => console.error('Error fetching patient details:', error));
+    } else {
+        document.getElementById('editConsultationPatientName').value = '';
+    }
+});
+
+// document.getElementById('editConsultationNurseId').addEventListener('change', function() {
+//     const nurseId = this.value;
+//     if (nurseId) {
+//         fetch(`http://localhost:50/detail_user/${nurseId}`)
+//             .then(response => response.json())
+//             .then(data => {
+//                 if (data && data.name) {
+//                     document.getElementById('editConsultationNursetName').value = data.name;
+//                 } else {
+//                     document.getElementById('editConsultationNurseName').value = '';
+//                     alert('Nurse details not found');
+//                 }
+//             })
+//             .catch(error => console.error('Error fetching nurse details:', error));
+//     } else {
+//         document.getElementById('editConsultationPatientName').value = '';
+//     }
+// });
+
+// Function to fetch patient details based on patient ID
+function fetchPatientDetails(patientId) {
+    return fetch(`http://localhost:50/detail_user/${patientId}`)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        });
+}
+
+// Function to submit consultation data to the server
+function submitConsultationAdd(consultationData) {
+    fetch('http://localhost:55/konsultasi', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(consultationData)
+    })
+    .then(response => response.json())
+    .then(data => {
+        alert(data.message);
+        loadConsultations();
+        document.getElementById('add-consultation-form').reset();
+    })
+    .catch(error => console.error('Error adding consultation:', error));
+}
+
+// Rest of your script remains the same...
+
+
 
 // Function to submit consultation data to the server
 function submitConsultationAdd(consultationData) {
@@ -261,22 +398,161 @@ function deleteConsultation(id) {
     .catch(error => console.error('Error deleting consultation:', error));
 }
 
-function editConsultation(id) {
-    fetch(`http://localhost:55/detail_konsultasi/${id}`)
+
+document.addEventListener('DOMContentLoaded', function() {
+    loadJanji(); // Load janji data when the page is loaded
+});
+
+function loadJanji() {
+    fetch('http://localhost:59/janji')
+        .then(response => response.json())
+        .then(data => {
+            const janjiTableBody = document.getElementById('janji-table-body');
+            janjiTableBody.innerHTML = '';
+            data.forEach((janji, index) => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <th scope="row">${index + 1}</th>
+                    <td>${janji.patient_name}</td>
+                    <td>${janji.nurse_name}</td>
+                    <td>${janji.appointment_date}</td>
+                    <td>
+                        <button onclick="deleteJanji(${janji.id})" class="btn btn-danger">Delete</button>
+                        <button onclick="editJanji(${janji.id})" class="btn btn-warning">Edit</button>
+                    </td>
+                `;
+                janjiTableBody.appendChild(row);
+            });
+        })
+        .catch(error => console.error('Error loading janji:', error));
+}
+
+function createJanji(event) {
+    event.preventDefault();
+
+    const patientName = document.getElementById('patientName').value;
+    const nurseName = document.getElementById('nurseName').value;
+    const appointmentDate = document.getElementById('appointmentDate').value;
+    const nurseId = document.getElementById('idNurse').value;
+
+    fetchPatientId(patientName)
+        .then(patientId => {
+            // Proceed with creating the janji entry
+            return fetch('http://localhost:59/janji', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    patient_name: patientName,
+                    nurse_name: nurseName,
+                    appointment_date: appointmentDate,
+                    nurse_id: nurseId,
+                    patient_id: patientId
+                })
+            });
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.error) {
+                throw new Error(data.message);
+            }
+            alert(data.message);
+            loadJanji(); // Reload the janji table after successful addition
+            document.getElementById('janji-form').reset(); // Reset the form
+            // Automatically create a consultation when management_janji is added
+            const managementJanjiId = data.management_janji_id;
+            fetchPatientId(patientName).then(patientId => createConsultation(patientId, nurseId, managementJanjiId));
+        })
+        .catch(error => console.error('Error adding management_janji:', error));
+}
+
+function fetchPatientId(patientName) {
+    return fetch(`http://localhost:59/get_patient_id?name=${encodeURIComponent(patientName)}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data && data.patient_id) {
+                return data.patient_id;
+            } else {
+                throw new Error('Patient ID not found');
+            }
+        });
+}
+
+// Function to create a consultation automatically when a management_janji entry is added
+function createConsultation(patientId, nurseId, managementJanjiId) {
+    // Fetch patient name based on patientId
+    fetch(`http://localhost:50/detail_user/${patientId}`)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (data && data.name) { // Check if data exists and has name property
+                const patientName = data.name; // Get the patient name
+                
+                // Include patient name, nurse ID, and management_janji_id in the consultation data
+                const consultationData = {
+                    patient_id: patientId,
+                    patient_name: patientName,
+                    nurse_id: nurseId,
+                    management_janji_id: managementJanjiId
+                    // Include other consultation details here if needed
+                };
+                
+                // Make POST request to create the consultation
+                return fetch('http://localhost:55/konsultasi', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(consultationData)
+                });
+            } else {
+                throw new Error('Patient details not found');
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.error) {
+                throw new Error(data.message);
+            }
+            console.log(data.message); // Log the message
+            // You can perform additional actions after creating the consultation if needed
+        })
+        .catch(error => console.error('Error creating consultation:', error));
+}
+
+
+function deleteJanji(id) {
+    fetch(`http://localhost:59/delete_janji?id=${id}`, {
+        method: 'DELETE'
+    })
+    .then(response => response.json())
+    .then(data => {
+        alert(data.message);
+        loadJanji();
+    })
+    .catch(error => console.error('Error deleting janji:', error));
+}
+
+function editJanji(id) {
+    fetch(`http://localhost:59/detail_janji?id=${id}`)
         .then(response => response.json())
         .then(data => {
             if (data.length > 0) {
-                const consultation = data[0];
-                document.getElementById('editConsultationPatientName').value = consultation.patient_name;
-                document.getElementById('editConsultationPatientAge').value = consultation.patient_age;
-                document.getElementById('editConsultationDiseaseId').value = consultation.disease_id;
-                document.getElementById('editConsultationNurseId').value = consultation.nurse_id;
-                document.getElementById('editConsultationPatientId').value = consultation.patient_id;
-                document.getElementById('editConsultationId').value = consultation.id; // Hidden field to store ID
-                new bootstrap.Modal(document.getElementById('editConsultationModal')).show();
+                const janji = data[0];
+                document.getElementById('editJanjiPatientName').value = janji.patient_name;
+                document.getElementById('editJanjiNurseName').value = janji.nurse_name;
+                document.getElementById('editJanjiAppointmentDate').value = janji.appointment_date;
+                // Set the ID for editing
+                document.getElementById('editJanjiId').value = janji.id;
+                new bootstrap.Modal(document.getElementById('editJanjiModal')).show();
             }
         })
-        .catch(error => console.error('Error fetching consultation details:', error));
+        .catch(error => console.error('Error fetching janji details:', error));
 }
 
 function submitEditConsultation(event) {
@@ -284,6 +560,7 @@ function submitEditConsultation(event) {
 
     const id = document.getElementById('editConsultationId').value; // Get the consultation ID
     const patientAge = document.getElementById('editConsultationPatientAge').value;
+    const resep = document.getElementById('editConsultationResep').value;
     const diseaseId = document.getElementById('editConsultationDiseaseId').value;
     const nurseId = document.getElementById('editConsultationNurseId').value;
     const patientId = document.getElementById('editConsultationPatientId').value;
@@ -299,6 +576,7 @@ function submitEditConsultation(event) {
             disease_id: diseaseId,
             nurse_id: nurseId,
             patient_id: patientId,
+            resep_hasil_konsultasi: resep, 
             patient_name: patientName // Include patient name in the update
         })
     })
@@ -316,22 +594,54 @@ function submitEditConsultation(event) {
     .catch(error => console.error('Error updating consultation:', error));
 }
 
+function submitEditJanji(event) {
+    event.preventDefault(); // Prevent default form submission
 
-document.getElementById('editConsultationPatientId').addEventListener('change', function() {
-    const patientId = this.value;
-    if (patientId) {
-        fetch(`http://localhost:50/detail_user/${patientId}`)
-            .then(response => response.json())
-            .then(data => {
-                if (data && data.name) {
-                    document.getElementById('editConsultationPatientName').value = data.name;
-                } else {
-                    document.getElementById('editConsultationPatientName').value = '';
-                    alert('Patient details not found');
-                }
-            })
-            .catch(error => console.error('Error fetching patient details:', error));
-    } else {
-        document.getElementById('editConsultationPatientName').value = '';
-    }
-});
+    const id = document.getElementById('editJanjiId').value; // Get the janji ID
+    const patientName = document.getElementById('editJanjiPatientName').value;
+    const nurseName = document.getElementById('editJanjiNurseName').value;
+    const appointmentDate = document.getElementById('editJanjiAppointmentDate').value;
+
+    fetch(`http://localhost:59/update_janji?id=${id}`, {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            patient_name: patientName,
+            nurse_name: nurseName,
+            appointment_date: appointmentDate
+        })
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Failed to update janji');
+        }
+        return response.json();
+    })
+    .then(data => {
+        alert(data.message);
+        new bootstrap.Modal(document.getElementById('editJanjiModal')).hide(); // Hide the modal after successful update
+        loadJanji(); // Reload the janji table
+    })
+    .catch(error => console.error('Error updating janji:', error));
+}
+
+// Function to fetch nurse name based on nurse ID
+function fetchNurseName() {
+    const nurseId = document.getElementById('idNurse').value;
+    fetch(`http://localhost:59/get_nurse_name?id=${nurseId}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data && data.nurse_name) {
+                document.getElementById('nurseName').value = data.nurse_name;
+            } else {
+                document.getElementById('nurseName').value = '';
+                alert('Nurse details not found');
+            }
+        })
+        .catch(error => console.error('Error fetching nurse details:', error));
+}
+
+// Call the fetchNurseName function when nurse ID input changes
+document.getElementById('idNurse').addEventListener('change', fetchNurseName);
