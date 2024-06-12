@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register</title>
+</head>
+<body>
+    <div>
+        <form id="registerForm">
+            <input
+                type="text"
+                id="name"
+                placeholder="Name"
+                name="name"
+                required
+            />
+            <input
+                type="text"
+                id="username"
+                placeholder="Username"
+                name="username"
+                required
+            />
+            <input
+                type="password"
+                id="password"
+                placeholder="Password"
+                name="password"
+                required
+            />
+            <button type="submit">Register</button>
+        </form>
+    </div>
+
+    <!-- Include Axios from a CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script>
+        document.getElementById('registerForm').addEventListener('submit', async function(event) {
+            event.preventDefault();
+            
+            const name = document.getElementById('name').value;
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            
+            try {
+                const response = await axios.post('http://localhost:5000/register', {
+                    name: name,
+                    username: username,
+                    password: password,
+                });
+                alert('Registration successful');
+            } catch (error) {
+                console.error(error);
+                alert('Registration failed');
+            }
+        });
+    </script>
+</body>
+</html>

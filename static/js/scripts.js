@@ -539,17 +539,26 @@ function deleteJanji(id) {
 }
 
 function editJanji(id) {
-    fetch(`http://localhost:59/detail_janji?id=${id}`)
-        .then(response => response.json())
+    fetch(`http://localhost:59/detail_janji/${id}`)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        })
         .then(data => {
-            if (data.length > 0) {
-                const janji = data[0];
-                document.getElementById('editJanjiPatientName').value = janji.patient_name;
-                document.getElementById('editJanjiNurseName').value = janji.nurse_name;
-                document.getElementById('editJanjiAppointmentDate').value = janji.appointment_date;
-                // Set the ID for editing
-                document.getElementById('editJanjiId').value = janji.id;
-                new bootstrap.Modal(document.getElementById('editJanjiModal')).show();
+            if (data) {
+                document.getElementById('patientName').value = data.patient_name || '';
+                document.getElementById('idNurse').value = data.nurse_id || '';
+                document.getElementById('nurseName').value = data.nurse_name || '';
+                document.getElementById('appointmentDate').value = data.appointment_date || '';
+                document.getElementById('editJanjiId').value = id; // Hidden field to store ID
+
+                // Trigger Bootstrap modal manually
+                const modal = new bootstrap.Modal(document.getElementById('editJanjiModal'));
+                modal.show();
+            } else {
+                console.error('No janji data found');
             }
         })
         .catch(error => console.error('Error fetching janji details:', error));
@@ -594,35 +603,35 @@ function submitEditConsultation(event) {
     .catch(error => console.error('Error updating consultation:', error));
 }
 
-function submitEditJanji(event) {
-    event.preventDefault(); // Prevent default form submission
-
-    const id = document.getElementById('editJanjiId').value; // Get the janji ID
-    const patientName = document.getElementById('editJanjiPatientName').value;
-    const nurseName = document.getElementById('editJanjiNurseName').value;
-    const appointmentDate = document.getElementById('editJanjiAppointmentDate').value;
+function updateJanji() {
+    const id = document.getElementById('editJanjiId').value;
+    const data = {
+        patient_name: document.getElementById('patientName').value,
+        nurse_id: document.getElementById('idNurse').value,
+        appointment_date: document.getElementById('appointmentDate').value,
+    };
 
     fetch(`http://localhost:59/update_janji?id=${id}`, {
         method: 'PUT',
         headers: {
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-            patient_name: patientName,
-            nurse_name: nurseName,
-            appointment_date: appointmentDate
-        })
+        body: JSON.stringify(data),
     })
     .then(response => {
         if (!response.ok) {
-            throw new Error('Failed to update janji');
+            throw new Error('Network response was not ok');
         }
         return response.json();
     })
-    .then(data => {
-        alert(data.message);
-        new bootstrap.Modal(document.getElementById('editJanjiModal')).hide(); // Hide the modal after successful update
-        loadJanji(); // Reload the janji table
+    .then(result => {
+        console.log(result.message);
+        // Close the modal after updating
+        const modal = bootstrap.Modal.getInstance(document.getElementById('editJanjiModal'));
+        modal.hide();
+
+        // Optionally, refresh the page or update the UI to reflect changes
+        location.reload();
     })
     .catch(error => console.error('Error updating janji:', error));
 }
@@ -643,5 +652,21 @@ function fetchNurseName() {
         .catch(error => console.error('Error fetching nurse details:', error));
 }
 
+function fetchNurseNameModal() {
+    const nurseId = document.getElementById('idNurse').value;
+    fetch(`http://localhost:59/get_nurse_name?id=${nurseId}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data && data.nurse_name) {
+                document.getElementById('nurseNameModal').value = data.nurse_name;
+            } else {
+                document.getElementById('nurseNameModal').value = '';
+                alert('Nurse details not found');
+            }
+        })
+        .catch(error => console.error('Error fetching nurse details:', error));
+}
+
 // Call the fetchNurseName function when nurse ID input changes
 document.getElementById('idNurse').addEventListener('change', fetchNurseName);
+document.getElementById('idNurseModal').addEventListener('change', fetchNurseNameModal);

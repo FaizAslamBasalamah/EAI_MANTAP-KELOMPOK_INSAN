@@ -1,0 +1,140 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+        }
+        h1 {
+            text-align: center;
+            margin-top: 50px;
+            color: #333;
+        }
+        form {
+            width: 300px;
+            margin: 0 auto;
+            background: #fff;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+        }
+        label {
+            font-weight: bold;
+            color: #333;
+        }
+        input[type="text"],
+        input[type="password"] {
+            width: 300px;
+            padding: 10px;
+            margin: 5px 0 20px 0;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-sizing: border-box;
+        }
+        input[type="submit"] {
+            width: 100%;
+            padding: 10px;
+            margin-top: 10px;
+            background-color: #007bff;
+            border: none;
+            border-radius: 5px;
+            color: #fff;
+            cursor: pointer;
+            text-align: center;
+        }
+        input[type="submit"]:hover {
+            background-color: #0056b3;
+        }
+        .back-btn {
+            display: block;
+            width: 280px;
+            padding: 10px;
+            margin-top: 10px;
+            background-color: #6c757d;
+            border: none;
+            border-radius: 5px;
+            color: #fff;
+            text-align: center;
+            text-decoration: none;
+        }
+        .back-btn:hover {
+            background-color: #5a6268;
+        }
+    </style>
+</head>
+<body>
+    <h1>Login</h1>
+    <form id="loginForm">
+        <label for="username">Username:</label><br>
+        <input type="text" id="username" name="username"><br>
+        <label for="password">Password:</label><br>
+        <input type="password" id="password" name="password"><br><br>
+        <input type="submit" value="Login">
+        <a href="/" class="back-btn">Back</a>
+    </form>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('loginForm').addEventListener('submit', async function(event) {
+                event.preventDefault();
+                const username = document.getElementById('username').value;
+                const password = document.getElementById('password').value;
+
+                try {
+                    const response = await fetch('http://localhost:70/login', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            'username': username,
+                            'password': password
+                        })
+                    });
+
+                    const data = await response.json();
+                    if (response.ok) {
+                        localStorage.setItem('token', data.token);
+                        alert('Login successful');
+                        // Redirect to the protected index route
+                        window.location.href = '/';
+                    } else {
+                        alert('Login failed');
+                    }
+                } catch (error) {
+                    alert('Login failed');
+                }
+            });
+
+            // Example of making an authenticated request
+            async function fetchProtectedData() {
+                const token = localStorage.getItem('token');
+                try {
+                    const response = await fetch('http://localhost:70/', {
+                        method: 'GET',
+                        headers: {
+                            'Authorization': `Bearer ${token}`
+                        }
+                    });
+
+                    if (response.ok) {
+                        const data = await response.json();
+                        console.log(data);
+                    } else {
+                        console.error('Failed to fetch protected data');
+                    }
+                } catch (error) {
+                    console.error('Failed to fetch protected data');
+                }
+            }
+
+            // // Uncomment to fetch protected data on page load
+            fetchProtectedData();
+        });
+    </script>
+</body>
+</html>

@@ -35,17 +35,21 @@ def janji():
         return jsonify({'message': 'Janji added successfully', 'management_janji_id': management_janji_id})
 
 
-@app.route('/detail_janji', methods=['GET'])
-def detail_janji():
-    if 'id' in request.args:
+@app.route('/detail_janji/<int:id>', methods=['GET'])
+def detail_janji(id):
+    try:
         cursor = mysql.connection.cursor()
-        sql = "SELECT * FROM management_janji WHERE id = %s"
-        val = (request.args['id'],)
-        cursor.execute(sql, val)
+        query = "SELECT * FROM management_janji WHERE id = %s"
+        cursor.execute(query, (id,))
         column_names = [i[0] for i in cursor.description]
-        data = [dict(zip(column_names, row)) for row in cursor.fetchall()]
+        data = cursor.fetchone()
         cursor.close()
-        return jsonify(data)
+        if data:
+            return jsonify(dict(zip(column_names, data)))
+        else:
+            return jsonify({'message': ' not found'}), 404
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
 
 @app.route('/delete_janji', methods=['DELETE'])
 def delete_janji():

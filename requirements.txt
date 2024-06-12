@@ -1,0 +1,6 @@
+Flask==0.8
+Flask-RESTful==0.3.10
+flask==2.2.5
+PyJWT==2.8.0
+Flask-SQLAlchemy==3.0.5
+Werkzeug==2.0.3
