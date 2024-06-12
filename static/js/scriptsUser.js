@@ -73,8 +73,7 @@ function loadJanji() {
                     <td>${janji.nurse_name}</td>
                     <td>${janji.appointment_date}</td>
                     <td>
-                        <button onclick="deleteJanji(${janji.id})" class="btn btn-danger">Delete</button>
-                        <button onclick="editJanji(${janji.id})" class="btn btn-warning">Edit</button>
+                        <button onclick="deleteJanji(${janji.id})" class="btn btn-danger">Cancel</button>
                     </td>
                 `;
                 janjiTableBody.appendChild(row);
