@@ -189,7 +189,8 @@ function loadConsultations() {
                     <td>${konsultasi.patient_age}</td>
                     <td>${konsultasi.resep_hasil_konsultasi}</td>
                     <td>
-                        <button onclick="editConsultation(${konsultasi.id})" class="btn btn-primary">Tambah</button>
+                        <button onclick="editConsultation(${konsultasi.id})" class="btn btn-primary">Isi</button>
+                        <button onclick="deleteConsultation(${konsultasi.id})" class="btn btn-danger">Delete</button>
                     </td>
                 `;
                 konsultasiTableBody.appendChild(row);
@@ -241,30 +242,31 @@ function editConsultation(id) {
             return response.json();
         })
         .then(data => {
-            // Check if data is an array or a single object
-            if (Array.isArray(data) && data.length > 0) {
-                const consultation = data[0];
-                document.getElementById('editConsultationPatientName').value = consultation.patient_name;
-                document.getElementById('editConsultationResep').value = consultation.resep_hasil_konsultasi;
-                document.getElementById('editConsultationPatientAge').value = consultation.patient_age;
-                document.getElementById('editConsultationDiseaseId').value = consultation.disease_id;
-                document.getElementById('editConsultationNurseId').value = consultation.nurse_id;
-                document.getElementById('editConsultationPatientId').value = consultation.patient_id;
-                document.getElementById('editConsultationId').value = consultation.id; // Hidden field to store ID
+            const defaultAge = 0;
+            const defaultResep = 'No Resep Provided';
 
-                // Trigger Bootstrap modal manually
-                const modal = new bootstrap.Modal(document.getElementById('editConsultationModal'));
-                modal.show();
-            } else if (!Array.isArray(data) && data !== null) {
-                // Handle single object response
-                const consultation = data;
-                document.getElementById('editConsultationPatientName').value = consultation.patient_name;
-                document.getElementById('editConsultationResep').value = consultation.resep_hasil_konsultasi;
-                document.getElementById('editConsultationPatientAge').value = consultation.patient_age;
-                document.getElementById('editConsultationDiseaseId').value = consultation.disease_id;
-                document.getElementById('editConsultationNurseId').value = consultation.nurse_id;
-                document.getElementById('editConsultationPatientId').value = consultation.patient_id;
-                document.getElementById('editConsultationId').value = consultation.id; // Hidden field to store ID
+            // Check if data is an array or a single object
+            const consultation = Array.isArray(data) && data.length > 0 ? data[0] : data;
+
+            if (consultation) {
+                document.getElementById('editConsultationPatientName').value = consultation.patient_name || '';
+                document.getElementById('editConsultationResep').value = consultation.resep_hasil_konsultasi ?? defaultResep;
+                document.getElementById('editConsultationPatientAge').value = consultation.patient_age ?? defaultAge;
+                document.getElementById('editConsultationDiseaseId').value = consultation.disease_id || '';
+                document.getElementById('editConsultationNurseId').value = consultation.nurse_id || '';
+                document.getElementById('editConsultationPatientId').value = consultation.patient_id || '';
+                document.getElementById('editConsultationId').value = consultation.id || ''; // Hidden field to store ID
+
+                // Log values for debugging
+                console.log('Consultation data:', {
+                    patient_name: consultation.patient_name,
+                    resep_hasil_konsultasi: consultation.resep_hasil_konsultasi ?? defaultResep,
+                    patient_age: consultation.patient_age ?? defaultAge,
+                    disease_id: consultation.disease_id,
+                    nurse_id: consultation.nurse_id,
+                    patient_id: consultation.patient_id,
+                    id: consultation.id
+                });
 
                 // Trigger Bootstrap modal manually
                 const modal = new bootstrap.Modal(document.getElementById('editConsultationModal'));
@@ -277,24 +279,7 @@ function editConsultation(id) {
 }
 
 
-document.getElementById('editConsultationPatientId').addEventListener('change', function() {
-    const patientId = this.value;
-    if (patientId) {
-        fetch(`http://localhost:50/detail_user/${patientId}`)
-            .then(response => response.json())
-            .then(data => {
-                if (data && data.name) {
-                    document.getElementById('editConsultationPatientName').value = data.name;
-                } else {
-                    document.getElementById('editConsultationPatientName').value = '';
-                    alert('Patient details not found');
-                }
-            })
-            .catch(error => console.error('Error fetching patient details:', error));
-    } else {
-        document.getElementById('editConsultationPatientName').value = '';
-    }
-});
+
 
 document.getElementById('editConsultationPatientId').addEventListener('change', function() {
     const patientId = this.value;
@@ -315,24 +300,24 @@ document.getElementById('editConsultationPatientId').addEventListener('change', 
     }
 });
 
-// document.getElementById('editConsultationNurseId').addEventListener('change', function() {
-//     const nurseId = this.value;
-//     if (nurseId) {
-//         fetch(`http://localhost:50/detail_user/${nurseId}`)
-//             .then(response => response.json())
-//             .then(data => {
-//                 if (data && data.name) {
-//                     document.getElementById('editConsultationNursetName').value = data.name;
-//                 } else {
-//                     document.getElementById('editConsultationNurseName').value = '';
-//                     alert('Nurse details not found');
-//                 }
-//             })
-//             .catch(error => console.error('Error fetching nurse details:', error));
-//     } else {
-//         document.getElementById('editConsultationPatientName').value = '';
-//     }
-// });
+document.getElementById('idNurseModal').addEventListener('change', function() {
+    const nurseId = this.value;
+    if (nurseId) {
+        fetch(`http://localhost:50/detail_user/${nurseId}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data && data.name) {
+                    document.getElementById('NurseNameModal').value = data.name;
+                } else {
+                    document.getElementById('NurseNameModal').value = '';
+                    alert('Nurse details not found');
+                }
+            })
+            .catch(error => console.error('Error fetching patient details:', error));
+    } else {
+        document.getElementById('NurseNameModal').value = '';
+    }
+});
 
 // Function to fetch patient details based on patient ID
 function fetchPatientDetails(patientId) {
@@ -549,8 +534,8 @@ function editJanji(id) {
         .then(data => {
             if (data) {
                 document.getElementById('patientName').value = data.patient_name || '';
-                document.getElementById('idNurse').value = data.nurse_id || '';
-                document.getElementById('nurseName').value = data.nurse_name || '';
+                document.getElementById('idNurseModal').value = data.nurse_id || '';
+                document.getElementById('NurseNameModal').value = data.nurse_name || '';
                 document.getElementById('appointmentDate').value = data.appointment_date || '';
                 document.getElementById('editJanjiId').value = id; // Hidden field to store ID
 
@@ -607,7 +592,7 @@ function updateJanji() {
     const id = document.getElementById('editJanjiId').value;
     const data = {
         patient_name: document.getElementById('patientName').value,
-        nurse_id: document.getElementById('idNurse').value,
+        nurse_id: document.getElementById('idNurseModal').value,
         appointment_date: document.getElementById('appointmentDate').value,
     };
 
@@ -652,21 +637,5 @@ function fetchNurseName() {
         .catch(error => console.error('Error fetching nurse details:', error));
 }
 
-function fetchNurseNameModal() {
-    const nurseId = document.getElementById('idNurse').value;
-    fetch(`http://localhost:59/get_nurse_name?id=${nurseId}`)
-        .then(response => response.json())
-        .then(data => {
-            if (data && data.nurse_name) {
-                document.getElementById('nurseNameModal').value = data.nurse_name;
-            } else {
-                document.getElementById('nurseNameModal').value = '';
-                alert('Nurse details not found');
-            }
-        })
-        .catch(error => console.error('Error fetching nurse details:', error));
-}
-
 // Call the fetchNurseName function when nurse ID input changes
 document.getElementById('idNurse').addEventListener('change', fetchNurseName);
-document.getElementById('idNurseModal').addEventListener('change', fetchNurseNameModal);

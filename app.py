@@ -33,15 +33,18 @@ db = SQLAlchemy(app)
 # Database ORMs
 class User(db.Model):
     __tablename__ = 'users'  # Make sure this matches the existing table name
-    id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(100))
-    username = db.Column(db.String(100), unique=True)
-    password = db.Column(db.String(255))
-    role = db.Column(db.String(50), default='patient')
-    refresh_token = db.Column(db.String(255))
+    id = db.Column(db.String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    name = db.Column(db.String(128), nullable=False)
+    username = db.Column(db.String(128), unique=True, nullable=False)
+    password = db.Column(db.String(256), nullable=False)
+    role = db.Column(db.String(64), nullable=False)
+    refresh_token = db.Column(db.String(256), nullable=True)
 
-    def __repr__(self):
-        return f'<User {self.username}>'
+    def __init__(self, name, username, password, role):
+        self.name = name
+        self.username = username
+        self.password = generate_password_hash(password)
+        self.role = role
 
 # decorator for verifying the JWT
 def token_required(f):
@@ -107,9 +110,12 @@ def login():
     if check_password_hash(user.password, auth.get('password')):
         # generates the JWT Token
         token = jwt.encode({
-            'user_id': user.id,
-            'exp': datetime.utcnow() + timedelta(minutes=30)
-        }, app.config['SECRET_KEY'], algorithm="HS256")
+                'user_id': user.id,
+                'username': user.username,
+                'name': user.name,
+                'role': user.role,
+                'exp': datetime.utcnow() + timedelta(minutes=30)
+            }, app.config['SECRET_KEY'], algorithm="HS256")
 
         response = jsonify({'token': token})
         response.status_code = 201
@@ -123,39 +129,49 @@ def login():
         {'WWW-Authenticate': 'Basic realm ="Wrong Password !!"'}
     )
 # signup route
-@app.route('/signup', methods=['POST'])
+@app.route('/register', methods=['POST'])
 def signup():
     # creates a dictionary of the form data
     data = request.form
 
     # gets name, username and password
-    name, username = data.get('name'), data.get('username')
+    name = data.get('name')
+    username = data.get('username')
     password = data.get('password')
+    role = data.get('role')
 
     # checking for existing user
     user = User.query.filter_by(username=username).first()
     if not user:
-        # database ORM object
-        user = User(
-            id=str(uuid.uuid4()),
-            name=name,
-            username=username,
-            password=generate_password_hash(password)
-        )
-        # insert user
-        db.session.add(user)
-        db.session.commit()
+        try:
+            # database ORM object
+            user = User(
+                name=name,
+                username=username,
+                password=generate_password_hash(password),
+                role=role
+            )
+            # insert user
+            db.session.add(user)
+            db.session.commit()
 
-        # generates the JWT Token
-        token = jwt.encode({
-            'user_id': user.id,
-            'exp': datetime.utcnow() + timedelta(minutes=30)
-        }, app.config['SECRET_KEY'], algorithm="HS256")
+            # generates the JWT Token
+            token = jwt.encode({
+                'user_id': user.id,
+                'username': user.username,
+                'name': user.name,
+                'role': user.role,
+                'exp': datetime.utcnow() + timedelta(minutes=30)
+            }, app.config['SECRET_KEY'], algorithm="HS256")
 
-        return make_response(jsonify({'token': token}), 201)
+            return make_response(jsonify({'token': token}), 201)
+        except Exception as e:
+            db.session.rollback()  # rollback the session in case of error
+            return make_response(str(e), 500)
     else:
         # returns 202 if user already exists
         return make_response('User already exists. Please Log in.', 202)
+
 
 @app.route('/login-page')
 def login_page():
