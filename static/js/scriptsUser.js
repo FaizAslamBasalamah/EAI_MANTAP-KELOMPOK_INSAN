@@ -333,3 +333,211 @@ function fetchNurseName() {
 
 // Call the fetchNurseName function when nurse ID input changes
 document.getElementById('idNurse').addEventListener('change', fetchNurseName);
+
+document.addEventListener('DOMContentLoaded', function() {
+    loadConsultations(); // Load consultations when the page is loaded
+});
+
+function loadConsultations() {
+    fetch('http://localhost:55/konsultasi')
+        .then(response => response.json())
+        .then(data => {
+            const konsultasiTableBody = document.getElementById('konsultasi-table-body');
+            konsultasiTableBody.innerHTML = '';
+            data.forEach((konsultasi, index) => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <th scope="row">${index + 1}</th>
+                    <td>${konsultasi.patient_name}</td>
+                    <td>${konsultasi.patient_age}</td>
+                    <td>${konsultasi.resep_hasil_konsultasi}</td>
+                `;
+                konsultasiTableBody.appendChild(row);
+            });
+        })
+        .catch(error => console.error('Error loading consultations:', error));
+}
+
+// Function to add a new consultation
+function addConsultation(event) {
+    event.preventDefault();
+
+    const nurseId = document.getElementById('nurseId').value;
+    const patientId = document.getElementById('patientId').value;
+    const patientAge = document.getElementById('patientAge').value;
+    const diseaseId = document.getElementById('diseaseId').value;
+    const resepKonsultasi = document.getElementById('resepKonsultasi').value;
+
+    // Fetch patient details using patientId
+    fetchPatientDetails(patientId)
+        .then(data => {
+            if (data && data.name) { // Check if data exists and has name property
+                const patientName = data.name; // Get the patient name
+                const consultationData = {
+                    patient_name: patientName, // Include patient name in consultation data
+                    patient_age: patientAge,
+                    disease_id: diseaseId,
+                    nurse_id: nurseId,
+                    patient_id: patientId,
+                    resep_hasil_konsultasi: resepKonsultasi // Include resep_konsultasi in consultation data
+                };
+                console.log('Consultation Data:', consultationData)
+                // Call the function to submit the consultation data
+                submitConsultationAdd(consultationData);
+            } else {
+                console.error('Patient details not found');
+                alert('Patient details not found');
+            }
+        })
+        .catch(error => console.error('Error fetching patient details:', error));
+}
+
+function editConsultation(id) {
+    fetch(`http://localhost:55/detail_konsultasi/${id}`)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        })
+        .then(data => {
+            const defaultAge = 0;
+            const defaultResep = 'No Resep Provided';
+
+            // Check if data is an array or a single object
+            const consultation = Array.isArray(data) && data.length > 0 ? data[0] : data;
+
+            if (consultation) {
+                document.getElementById('editConsultationPatientName').value = consultation.patient_name || '';
+                document.getElementById('editConsultationResep').value = consultation.resep_hasil_konsultasi ?? defaultResep;
+                document.getElementById('editConsultationPatientAge').value = consultation.patient_age ?? defaultAge;
+                document.getElementById('editConsultationDiseaseId').value = consultation.disease_id || '';
+                document.getElementById('editConsultationNurseId').value = consultation.nurse_id || '';
+                document.getElementById('editConsultationPatientId').value = consultation.patient_id || '';
+                document.getElementById('editConsultationId').value = consultation.id || ''; // Hidden field to store ID
+
+                // Log values for debugging
+                console.log('Consultation data:', {
+                    patient_name: consultation.patient_name,
+                    resep_hasil_konsultasi: consultation.resep_hasil_konsultasi ?? defaultResep,
+                    patient_age: consultation.patient_age ?? defaultAge,
+                    disease_id: consultation.disease_id,
+                    nurse_id: consultation.nurse_id,
+                    patient_id: consultation.patient_id,
+                    id: consultation.id
+                });
+
+                // Trigger Bootstrap modal manually
+                const modal = new bootstrap.Modal(document.getElementById('editConsultationModal'));
+                modal.show();
+            } else {
+                console.error('No consultation data found');
+            }
+        })
+        .catch(error => console.error('Error fetching consultation details:', error));
+}
+
+
+
+
+document.getElementById('editConsultationPatientId').addEventListener('change', function() {
+    const patientId = this.value;
+    if (patientId) {
+        fetch(`http://localhost:50/detail_user/${patientId}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data && data.name) {
+                    document.getElementById('editConsultationPatientName').value = data.name;
+                } else {
+                    document.getElementById('editConsultationPatientName').value = '';
+                    alert('Patient details not found');
+                }
+            })
+            .catch(error => console.error('Error fetching patient details:', error));
+    } else {
+        document.getElementById('editConsultationPatientName').value = '';
+    }
+});
+
+document.getElementById('idNurseModal').addEventListener('change', function() {
+    const nurseId = this.value;
+    if (nurseId) {
+        fetch(`http://localhost:50/detail_user/${nurseId}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data && data.name) {
+                    document.getElementById('NurseNameModal').value = data.name;
+                } else {
+                    document.getElementById('NurseNameModal').value = '';
+                    alert('Nurse details not found');
+                }
+            })
+            .catch(error => console.error('Error fetching patient details:', error));
+    } else {
+        document.getElementById('NurseNameModal').value = '';
+    }
+});
+
+// Function to fetch patient details based on patient ID
+function fetchPatientDetails(patientId) {
+    return fetch(`http://localhost:50/detail_user/${patientId}`)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        });
+}
+
+// Function to submit consultation data to the server
+function submitConsultationAdd(consultationData) {
+    fetch('http://localhost:55/konsultasi', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(consultationData)
+    })
+    .then(response => response.json())
+    .then(data => {
+        alert(data.message);
+        loadConsultations();
+        document.getElementById('add-consultation-form').reset();
+    })
+    .catch(error => console.error('Error adding consultation:', error));
+}
+
+// Rest of your script remains the same...
+
+
+
+// Function to submit consultation data to the server
+function submitConsultationAdd(consultationData) {
+    fetch('http://localhost:50/getConsultationsPatientName', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(consultationData)
+    })
+    .then(response => response.json())
+    .then(data => {
+        alert(data.message);
+        loadConsultations();
+        document.getElementById('add-consultation-form').reset();
+    })
+    .catch(error => console.error('Error adding consultation:', error));
+}
+
+
+function deleteConsultation(id) {
+    fetch(`http://localhost:55/delete_konsultasi?id=${id}`, {
+        method: 'DELETE'
+    })
+    .then(response => response.json())
+    .then(data => {
+        alert(data.message);
+        loadConsultations();
+    })
+    .catch(error => console.error('Error deleting consultation:', error));
+}

@@ -93,6 +93,81 @@
                     </div>
                 </div>
             </section>
+            <section class="page-section" id="portfolio">
+                <div class="container">
+                    <div class="text-center">
+                        <h2 class="section-heading text-uppercase">Hasil Konsultasi</h2>
+                        <h3 class="section-subheading text-muted">Hubungi Nurse Jika ingin di edit!</h3>
+                    </div>
+                    <div class="row text-center justify-content-center">
+                        <div class="col-md-10">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th scope="col">No</th>
+                                        <th scope="col">Nama Pasien</th>
+                                        <th scope="col">Umur Pasien</th>
+                                        <th scope="col">Resep Hasil Konsultasi</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="konsultasi-table-body">
+                                    
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <br>
+                    <div class="row text-center justify-content-center grid">
+                        <!-- Desc Konsultasi -->
+                        <div class="row text-center justify-content-center">
+                            <div class="col-md-4">
+                                <h3 class="section-subheading text-muted">Berikut informasi hasil konsultasi</h3>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                </div>
+                <div class="modal fade" id="editConsultationModal" tabindex="-1" aria-labelledby="editConsultationModalLabel" aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="editConsultationModalLabel">Edit Consultation</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <form id="edit-consultation-form" onsubmit="submitEditConsultation(event)">
+                                    <input type="hidden" id="editConsultationId">
+                                    <div class="mb-3">
+                                        <label for="editConsultationPatientId" class="form-label">Patient ID</label>
+                                        <input type="number" class="form-control" id="editConsultationPatientId" placeholder="Edit Patient ID" required>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="editConsultationPatientName" class="form-label">Patient Name</label>
+                                        <input type="text" class="form-control" id="editConsultationPatientName" placeholder="Edit Patient Name" readonly>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="editConsultationPatientAge" class="form-label">Patient Age</label>
+                                        <input type="number" class="form-control" id="editConsultationPatientAge" placeholder="Edit Patient Age" required>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="editConsultationDiseaseId" class="form-label">Disease ID</label>
+                                        <input type="number" class="form-control" id="editConsultationDiseaseId" placeholder="Edit Disease ID" required>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="editConsultationNurseId" class="form-label">Nurse ID</label>
+                                        <input type="number" class="form-control" id="editConsultationNurseId" placeholder="Edit Nurse ID" required>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="editConsultationResep" class="form-label">Resep Hasil Konsultasi</label>
+                                        <input type="textarea" class="form-control" id="editConsultationResep" placeholder="Isi Resep Hasil Konsultasi" required>
+                                    </div>
+                                    <button type="submit" class="btn btn-primary">Save Changes</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>            
+            </section>
         </div>
     </header>
     <!-- Bootstrap core JS-->
