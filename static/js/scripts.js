@@ -637,5 +637,6 @@ function fetchNurseName() {
         .catch(error => console.error('Error fetching nurse details:', error));
 }
 
+
 // Call the fetchNurseName function when nurse ID input changes
 document.getElementById('idNurse').addEventListener('change', fetchNurseName);

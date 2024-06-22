@@ -1,1 +1,1 @@
-Ubah config sql di Config.py sesuai database dan mysql servernya 🙏, lalu import medis_konsultasi.sql agar service bisa berjalan.
+Ubah config sql di Config.py, lalu import medis_konsultasi.sql agar service bisa berjalan.
