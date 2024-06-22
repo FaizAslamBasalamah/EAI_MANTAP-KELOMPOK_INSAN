@@ -171,10 +171,6 @@ document.addEventListener('DOMContentLoaded', function() {
     loadConsultations(); // Load consultations when the page is loaded
 });
 
-document.addEventListener('DOMContentLoaded', function() {
-    loadConsultations(); // Load consultations when the page is loaded
-});
-
 function loadConsultations() {
     fetch('http://localhost:55/konsultasi')
         .then(response => response.json())
