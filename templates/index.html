@@ -365,34 +365,6 @@
                 </div>
             </div>
         </section>
-        <script>
-           document.addEventListener('DOMContentLoaded', function() {
-            // Example of making an authenticated request
-            async function fetchProtectedData() {
-                const token = localStorage.getItem('token');
-                try {
-                    const response = await fetch('http://localhost:70/', {
-                        method: 'GET',
-                        headers: {
-                            'Authorization': `Bearer ${token}`
-                        }
-                    });
-
-                    if (response.ok) {
-                        const data = await response.json();
-                        console.log(data);
-                    } else {
-                        console.error('Failed to fetch protected data');
-                    }
-                } catch (error) {
-                    console.error('Failed to fetch protected data');
-                }
-            }
-
-            // // Uncomment to fetch protected data on page load
-            fetchProtectedData();
-        });
-        </script>
         <!-- Bootstrap core JS-->
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
         <!-- Core theme JS-->
