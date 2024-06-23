@@ -41,135 +41,135 @@
     <header class="masthead">
         <div class="container">
             <div class="masthead-heading">KLINIK KASIH SEHAT</div>
-            <div class="masthead-subheading text-uppercase">Manajemen Janji</div>
-            <section class="page-section" id="resepobat">
-                <div class="container">
-                    <div class="row text-center justify-content-center">
-                        <div class="col">
-                            <table class="table">
-                                <thead>
-                                    <tr>
-                                        <th scope="col">#</th>
-                                        <th scope="col">Nama Pasien</th>
-                                        <th scope="col">Nama Nurse</th>
-                                        <th scope="col">Jadwal Janji</th>
-                                        <th scope="col">Aksi</th>
-                                    </tr>
-                                </thead>
-                                <script src="https://cdn.jsdelivr.net/npm/jwt-decode/build/jwt-decode.min.js"></script>
-                                <tbody id="janji-table-body">
-                                    <!-- Rows will be dynamically inserted here -->
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                    <br>
-                    <br>
-                    <div class="row text-center justify-content-center grid">
-                        <!-- form submit ke API -->
-                        <div class="row text-center justify-content-center">
-                            <div class="col">
-                                <form id="janji-form" onsubmit="createJanji(event)">
-                                    <div class="mb-3">
-                                        <label for="patientName" class="form-label">Nama Pasien</label>
-                                        <input type="text" class="form-control" id="patientName" required>
-                                    </div>
-                                    <div class="mb-3">
-                                        <label for="idNurse" class="form-label">Id Nurse</label>
-                                        <input type="number" class="form-control" id="idNurse" required>
-                                    </div>
-                                    <div class="mb-3">
-                                        <label for="nurseName" class="form-label">Nama Nurse</label>
-                                        <input type="text" class="form-control" id="nurseName" readonly>
-                                    </div>
-                                    <div class="mb-3">
-                                        <label for="appointmentDate" class="form-label">Jadwal Janji</label>
-                                        <input type="datetime-local" class="form-control" id="appointmentDate" required>
-                                    </div>
-                                    <button type="submit" class="btn btn-primary">Submit</button>
-                                </form>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </section>
-            <section class="page-section" id="portfolio">
-                <div class="container">
-                    <div class="text-center">
-                        <h2 class="section-heading text-uppercase">Hasil Konsultasi</h2>
-                        <h3 class="section-subheading text-muted">Hubungi Nurse Jika ingin di edit!</h3>
-                    </div>
-                    <div class="row text-center justify-content-center">
-                        <div class="col-md-10">
-                            <table class="table">
-                                <thead>
-                                    <tr>
-                                        <th scope="col">No</th>
-                                        <th scope="col">Nama Pasien</th>
-                                        <th scope="col">Umur Pasien</th>
-                                        <th scope="col">Resep Hasil Konsultasi</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="konsultasi-table-body">
-                                    
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                    <br>
-                    <div class="row text-center justify-content-center grid">
-                        <!-- Desc Konsultasi -->
-                        <div class="row text-center justify-content-center">
-                            <div class="col-md-4">
-                                <h3 class="section-subheading text-muted">Berikut informasi hasil konsultasi</h3>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                </div>
-                <div class="modal fade" id="editConsultationModal" tabindex="-1" aria-labelledby="editConsultationModalLabel" aria-hidden="true">
-                    <div class="modal-dialog">
-                        <div class="modal-content">
-                            <div class="modal-header">
-                                <h5 class="modal-title" id="editConsultationModalLabel">Edit Consultation</h5>
-                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                            </div>
-                            <div class="modal-body">
-                                <form id="edit-consultation-form" onsubmit="submitEditConsultation(event)">
-                                    <input type="hidden" id="editConsultationId">
-                                    <div class="mb-3">
-                                        <label for="editConsultationPatientId" class="form-label">Patient ID</label>
-                                        <input type="number" class="form-control" id="editConsultationPatientId" placeholder="Edit Patient ID" required>
-                                    </div>
-                                    <div class="mb-3">
-                                        <label for="editConsultationPatientName" class="form-label">Patient Name</label>
-                                        <input type="text" class="form-control" id="editConsultationPatientName" placeholder="Edit Patient Name" readonly>
-                                    </div>
-                                    <div class="mb-3">
-                                        <label for="editConsultationPatientAge" class="form-label">Patient Age</label>
-                                        <input type="number" class="form-control" id="editConsultationPatientAge" placeholder="Edit Patient Age" required>
-                                    </div>
-                                    <div class="mb-3">
-                                        <label for="editConsultationDiseaseId" class="form-label">Disease ID</label>
-                                        <input type="number" class="form-control" id="editConsultationDiseaseId" placeholder="Edit Disease ID" required>
-                                    </div>
-                                    <div class="mb-3">
-                                        <label for="editConsultationNurseId" class="form-label">Nurse ID</label>
-                                        <input type="number" class="form-control" id="editConsultationNurseId" placeholder="Edit Nurse ID" required>
-                                    </div>
-                                    <div class="mb-3">
-                                        <label for="editConsultationResep" class="form-label">Resep Hasil Konsultasi</label>
-                                        <input type="textarea" class="form-control" id="editConsultationResep" placeholder="Isi Resep Hasil Konsultasi" required>
-                                    </div>
-                                    <button type="submit" class="btn btn-primary">Save Changes</button>
-                                </form>
-                            </div>
-                        </div>
-                    </div>
-                </div>            
-            </section>
+            <div class="masthead-subheading text-uppercase">Manajemen Janji untuk Patient</div>
         </div>
     </header>
+    <section class="page-section" id="resepobat">
+        <div class="container">
+            <div class="row text-center justify-content-center">
+                <div class="col">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th scope="col">#</th>
+                                <th scope="col">Nama Pasien</th>
+                                <th scope="col">Nama Nurse</th>
+                                <th scope="col">Jadwal Janji</th>
+                                <th scope="col">Aksi</th>
+                            </tr>
+                        </thead>
+                        <script src="https://cdn.jsdelivr.net/npm/jwt-decode/build/jwt-decode.min.js"></script>
+                        <tbody id="janji-table-body">
+                            <!-- Rows will be dynamically inserted here -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <br>
+            <br>
+            <div class="row text-center justify-content-center grid">
+                <!-- form submit ke API -->
+                <div class="row text-center justify-content-center">
+                    <div class="col">
+                        <form id="janji-form" onsubmit="createJanji(event)">
+                            <div class="mb-3">
+                                <label for="patientName" class="form-label">Nama Pasien</label>
+                                <input type="text" class="form-control" id="patientName" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="idNurse" class="form-label">Id Nurse</label>
+                                <input type="number" class="form-control" id="idNurse" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="nurseName" class="form-label">Nama Nurse</label>
+                                <input type="text" class="form-control" id="nurseName" readonly>
+                            </div>
+                            <div class="mb-3">
+                                <label for="appointmentDate" class="form-label">Jadwal Janji</label>
+                                <input type="datetime-local" class="form-control" id="appointmentDate" required>
+                            </div>
+                            <button type="submit" class="btn btn-primary">Submit</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <section class="page-section" id="portfolio">
+        <div class="container">
+            <div class="text-center">
+                <h2 class="section-heading text-uppercase">Hasil Konsultasi</h2>
+                <h3 class="section-subheading text-muted">Harap di tunggu, nanti nurse akan mengisi</h3>
+            </div>
+            <div class="row text-center justify-content-center">
+                <div class="col-md-10">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th scope="col">No</th>
+                                <th scope="col">Nama Pasien</th>
+                                <th scope="col">Umur Pasien</th>
+                                <th scope="col">Resep Hasil Konsultasi</th>
+                            </tr>
+                        </thead>
+                        <tbody id="konsultasi-table-body">
+                            
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <br>
+            <div class="row text-center justify-content-center grid">
+                <!-- Desc Konsultasi -->
+                <div class="row text-center justify-content-center">
+                    <div class="col-md-4">
+                        <h3 class="section-subheading text-muted">Jika inigin melakukan perubahan hubungi nurse</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+        </div>
+        <div class="modal fade" id="editConsultationModal" tabindex="-1" aria-labelledby="editConsultationModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="editConsultationModalLabel">Edit Consultation</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="edit-consultation-form" onsubmit="submitEditConsultation(event)">
+                            <input type="hidden" id="editConsultationId">
+                            <div class="mb-3">
+                                <label for="editConsultationPatientId" class="form-label">Patient ID</label>
+                                <input type="number" class="form-control" id="editConsultationPatientId" placeholder="Edit Patient ID" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="editConsultationPatientName" class="form-label">Patient Name</label>
+                                <input type="text" class="form-control" id="editConsultationPatientName" placeholder="Edit Patient Name" readonly>
+                            </div>
+                            <div class="mb-3">
+                                <label for="editConsultationPatientAge" class="form-label">Patient Age</label>
+                                <input type="number" class="form-control" id="editConsultationPatientAge" placeholder="Edit Patient Age" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="editConsultationDiseaseId" class="form-label">Disease ID</label>
+                                <input type="number" class="form-control" id="editConsultationDiseaseId" placeholder="Edit Disease ID" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="editConsultationNurseId" class="form-label">Nurse ID</label>
+                                <input type="number" class="form-control" id="editConsultationNurseId" placeholder="Edit Nurse ID" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="editConsultationResep" class="form-label">Resep Hasil Konsultasi</label>
+                                <input type="textarea" class="form-control" id="editConsultationResep" placeholder="Isi Resep Hasil Konsultasi" required>
+                            </div>
+                            <button type="submit" class="btn btn-primary">Save Changes</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>            
+    </section>
     <!-- Bootstrap core JS-->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
     <!-- Core theme JS-->

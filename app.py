@@ -16,13 +16,13 @@ mysql = MySQL(app)
 
 JWT_SECRET = 'your_jwt_secret'
 JWT_ALGORITHM = 'HS256'
-ACCESS_TOKEN_EXPIRES_IN = 15  # 30 seconds for demo
+ACCESS_TOKEN_EXPIRES_IN = 30  # 30 seconds for demo
 REFRESH_TOKEN_EXPIRES_IN = 3600  # 1 hour
 
 tokens = {}  # In-memory store for tokens
 
 def generate_token(user_id, role, name, expires_in, token_type='access'):
-    payload = {
+    payload = { 
         'user_id': user_id,
         'role': role,
         'name': name,
