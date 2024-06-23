@@ -130,7 +130,10 @@ def login():
                         response.set_cookie('refresh_token', refresh_token, httponly=False, samesite='Lax')
                         return response
                     elif 'nurse' in user[4]:
-                        return redirect(url_for('nurse_home'))
+                        response = make_response(redirect(url_for('nurse_home')))
+                        response.set_cookie('access_token', access_token, httponly=False, samesite='Lax')
+                        response.set_cookie('refresh_token', refresh_token, httponly=False, samesite='Lax')
+                        return response
                     else:
                         return 'Invalid role', 403
                 else:
